@@ -1,193 +1,152 @@
-## Laboratory work III
+## Лабораторная работа 3: Сборка проекта с помощью CMake
 
-Данная лабораторная работа посвещена изучению систем автоматизации сборки проекта на примере **CMake**
-
-```sh
-$ open https://cmake.org/
+formater_ex_lib - Расширенная библиотека
+./formater_ex_lib/CmakeLists.txt
 ```
+cat > formatter_ex_lib/CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.5)
+project(formatter_ex LANGUAGES CXX)
 
-## Tasks
+if(NOT TARGET formatter)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/formatter_lib ${CMAKE_CURRENT_BINARY_DIR}/formatter_lib)
+endif()
 
-- [ ] 1. Создать публичный репозиторий с названием **lab03** на сервисе **GitHub**
-- [ ] 2. Ознакомиться со ссылками учебного материала
-- [ ] 3. Выполнить инструкцию учебного материала
-- [ ] 4. Составить отчет и отправить ссылку личным сообщением в **Slack**
-
-## Tutorial
-
-```sh
-$ export GITHUB_USERNAME=<имя_пользователя>
+if(NOT TARGET formatter_ex)
+    add_library(formatter_ex STATIC formatter_ex.cpp)
+    target_include_directories(formatter_ex PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    )
+    target_link_libraries(formatter_ex PUBLIC formatter)
+endif()
+EOF
 ```
-
-```sh
-$ cd ${GITHUB_USERNAME}/workspace
-$ pushd .
-$ source scripts/activate
+formater_lib - Библиотека formatter
+./formater_lib/CmakeLists.txt
 ```
+cat > formatter_lib/CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.5)
 
-```sh
-$ git clone https://github.com/${GITHUB_USERNAME}/lab02.git projects/lab03
-$ cd projects/lab03
-$ git remote remove origin
-$ git remote add origin https://github.com/${GITHUB_USERNAME}/lab03.git
-```
+project(formatter LANGUAGES CXX VERSION 1.0)
 
-```sh
-$ g++ -std=c++11 -I./include -c sources/print.cpp
-$ ls print.o
-$ nm print.o | grep print
-$ ar rvs print.a print.o
-$ file print.a
-$ g++ -std=c++11 -I./include -c examples/example1.cpp
-$ ls example1.o
-$ g++ example1.o print.a -o example1
-$ ./example1 && echo
-```
-
-```sh
-$ g++ -std=c++11 -I./include -c examples/example2.cpp
-$ nm example2.o
-$ g++ example2.o print.a -o example2
-$ ./example2
-$ cat log.txt && echo
-```
-
-```sh
-$ rm -rf example1.o example2.o print.o
-$ rm -rf print.a
-$ rm -rf example1 example2
-$ rm -rf log.txt
-```
-
-```sh
-$ cat > CMakeLists.txt <<EOF
-cmake_minimum_required(VERSION 3.4)
-project(print)
+if(NOT TARGET formatter)
+    add_library(formatter STATIC formatter.cpp)
+    target_include_directories(formatter PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    )
+endif()
 EOF
 ```
 
-```sh
-$ cat >> CMakeLists.txt <<EOF
+hello_world_application - Пример приложения
+./hello_world_application/CmakeLists.txt
+```
+cat > hello_world_application/CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.5)
+
+project(hello_world LANGUAGES CXX)
+
+if(NOT TARGET formatter_ex)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/formatter_ex_lib 
+                   ${CMAKE_CURRENT_BINARY_DIR}/formatter_ex_lib)
+endif()
+
+add_executable(hello_world hello_world.cpp)
+target_link_libraries(hello_world PRIVATE formatter_ex)
+EOF
+```
+
+solver_application - Приложение, решающее задания
+./solver_application/CmakeLists.txt
+```
+cat > solver_application/CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.5)
+project(solver_app LANGUAGES CXX)
+
+if(NOT TARGET formatter_ex)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/formatter_ex_lib 
+                   ${CMAKE_CURRENT_BINARY_DIR}/formatter_ex_lib)
+endif()
+
+if(NOT TARGET solver_lib)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/solver_lib 
+                   ${CMAKE_CURRENT_BINARY_DIR}/solver_lib)
+endif()
+
+add_executable(solver equation.cpp)
+target_link_libraries(solver PRIVATE formatter_ex solver_lib)
+EOF
+```
+
+solver_library - Библиотека для решения уравнений
+./solver_library/CmakeLists.txt
+```
+cat > solver_library/CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.5)
+project(solver_library LANGUAGES CXX)
+
+if(NOT TARGET solver_library)
+    add_library(solver_library STATIC solver.cpp)
+    target_include_directories(solver_library PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    )
+endif()
+EOF
+```
+
+Локальный CmakeLists.txt
+./CmakeLists.txt
+```
+cat > CMakeLists.txt <<EOF
+cmake_minimum_required(VERSION 3.5)
+project(lab03 LANGUAGES CXX)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+cmake_policy(SET CMP0002 NEW)
+cmake_policy(SET CMP0079 NEW)
+
+add_subdirectory(formatter_lib)
+add_subdirectory(formatter_ex_lib)
+add_subdirectory(solver_library)
+add_subdirectory(hello_world_application)
+add_subdirectory(solver_application)
 EOF
 ```
 
-```sh
-$ cat >> CMakeLists.txt <<EOF
-add_library(print STATIC \${CMAKE_CURRENT_SOURCE_DIR}/sources/print.cpp)
-EOF
+Создание директории для сборки и генерация Makefile (из корня проекта)
+```
+mkdir build && cd build
+cmake ..
 ```
 
-```sh
-$ cat >> CMakeLists.txt <<EOF
-include_directories(\${CMAKE_CURRENT_SOURCE_DIR}/include)
-EOF
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/Lev/Документы/TPlab03/build
+
+Сборка всех компонентов
+```
+cmake --build .
 ```
 
-```sh
-$ cmake -H. -B_build
-$ cmake --build _build
+[ 20%] Built target formatter
+[ 40%] Built target formatter_ex
+[ 60%] Built target solver_library
+[ 80%] Built target hello_world
+[100%] Built target solver
+
+Пример для (x^2 + 4x + 3)
 ```
-
-```sh
-$ cat >> CMakeLists.txt <<EOF
-
-add_executable(example1 \${CMAKE_CURRENT_SOURCE_DIR}/examples/example1.cpp)
-add_executable(example2 \${CMAKE_CURRENT_SOURCE_DIR}/examples/example2.cpp)
-EOF
-```
-
-```sh
-$ cat >> CMakeLists.txt <<EOF
-
-target_link_libraries(example1 print)
-target_link_libraries(example2 print)
-EOF
-```
-
-```sh
-$ cmake --build _build
-$ cmake --build _build --target print
-$ cmake --build _build --target example1
-$ cmake --build _build --target example2
-```
-
-```sh
-$ ls -la _build/libprint.a
-$ _build/example1 && echo
-hello
-$ _build/example2
-$ cat log.txt && echo
-hello
-$ rm -rf log.txt
-```
-
-```sh
-$ git clone https://github.com/tp-labs/lab03 tmp
-$ mv -f tmp/CMakeLists.txt .
-$ rm -rf tmp
-```
-
-```sh
-$ cat CMakeLists.txt
-$ cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
-$ cmake --build _build --target install
-$ tree _install
-```
-
-```sh
-$ git add CMakeLists.txt
-$ git commit -m"added CMakeLists.txt"
-$ git push origin master
-```
-
-## Report
-
-```sh
-$ popd
-$ export LAB_NUMBER=03
-$ git clone https://github.com/tp-labs/lab${LAB_NUMBER} tasks/lab${LAB_NUMBER}
-$ mkdir reports/lab${LAB_NUMBER}
-$ cp tasks/lab${LAB_NUMBER}/README.md reports/lab${LAB_NUMBER}/REPORT.md
-$ cd reports/lab${LAB_NUMBER}
-$ edit REPORT.md
-$ gist REPORT.md
-```
-
-## Homework
-
-Представьте, что вы стажер в компании "Formatter Inc.".
-### Задание 1
-Вам поручили перейти на систему автоматизированной сборки **CMake**.
-Исходные файлы находятся в директории [formatter_lib](formatter_lib).
-В этой директории находятся файлы для статической библиотеки *formatter*.
-Создайте `CMakeList.txt` в директории [formatter_lib](formatter_lib),
-с помощью которого можно будет собирать статическую библиотеку *formatter*.
-
-### Задание 2
-У компании "Formatter Inc." есть перспективная библиотека,
-которая является расширением предыдущей библиотеки. Т.к. вы уже овладели
-навыком созданием `CMakeList.txt` для статической библиотеки *formatter*, ваш 
-руководитель поручает заняться созданием `CMakeList.txt` для библиотеки 
-*formatter_ex*, которая в свою очередь использует библиотеку *formatter*.
-
-### Задание 3
-Конечно же ваша компания предоставляет примеры использования своих библиотек.
-Чтобы продемонстрировать как работать с библиотекой *formatter_ex*,
-вам необходимо создать два `CMakeList.txt` для двух простых приложений:
-* *hello_world*, которое использует библиотеку *formatter_ex*;
-* *solver*, приложение которое испольует статические библиотеки *formatter_ex* и *solver_lib*.
-
-**Удачной стажировки!**
-
-## Links
-- [Основы сборки проектов на С/C++ при помощи CMake](https://eax.me/cmake/)
-- [CMake Tutorial](http://neerc.ifmo.ru/wiki/index.php?title=CMake_Tutorial)
-- [C++ Tutorial - make & CMake](https://www.bogotobogo.com/cplusplus/make.php)
-- [Autotools](http://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)
-- [CMake](https://cgold.readthedocs.io/en/latest/index.html)
-
-```
-Copyright (c) 2015-2021 The ISC Authors
+└─▪ ./hello_world_application/hello_world 
+-------------------------
+hello, world!
+-------------------------
+└─▪ ./solver_application/solver 
+1 4 3
+-------------------------
+x1 = -3.000000
+-------------------------
+-------------------------
+x2 = -1.000000
+-------------------------
 ```
