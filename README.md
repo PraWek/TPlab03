@@ -1,6 +1,6 @@
 ## Лабораторная работа 3: Сборка проекта с помощью CMake
 
-formater_ex_lib - Расширенная библиотека
+formater_ex_lib - Расширенная библиотека  
 ./formater_ex_lib/CmakeLists.txt
 ```
 cat > formatter_ex_lib/CMakeLists.txt <<EOF
@@ -20,7 +20,7 @@ if(NOT TARGET formatter_ex)
 endif()
 EOF
 ```
-formater_lib - Библиотека formatter
+formater_lib - Библиотека formatter  
 ./formater_lib/CmakeLists.txt
 ```
 cat > formatter_lib/CMakeLists.txt <<EOF
@@ -37,7 +37,7 @@ endif()
 EOF
 ```
 
-hello_world_application - Пример приложения
+hello_world_application - Пример приложения  
 ./hello_world_application/CmakeLists.txt
 ```
 cat > hello_world_application/CMakeLists.txt <<EOF
@@ -55,7 +55,7 @@ target_link_libraries(hello_world PRIVATE formatter_ex)
 EOF
 ```
 
-solver_application - Приложение, решающее задания
+solver_application - Приложение, решающее задания  
 ./solver_application/CmakeLists.txt
 ```
 cat > solver_application/CMakeLists.txt <<EOF
@@ -77,7 +77,7 @@ target_link_libraries(solver PRIVATE formatter_ex solver_lib)
 EOF
 ```
 
-solver_library - Библиотека для решения уравнений
+solver_library - Библиотека для решения уравнений  
 ./solver_library/CmakeLists.txt
 ```
 cat > solver_library/CMakeLists.txt <<EOF
@@ -93,7 +93,7 @@ endif()
 EOF
 ```
 
-Локальный CmakeLists.txt
+Локальный CmakeLists.txt  
 ./CmakeLists.txt
 ```
 cat > CMakeLists.txt <<EOF
@@ -120,20 +120,20 @@ mkdir build && cd build
 cmake ..
 ```
 
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /home/Lev/Документы/TPlab03/build
+-- Configuring done (0.0s)  
+-- Generating done (0.0s)  
+-- Build files have been written to: /home/Lev/Документы/TPlab03/build  
 
 Сборка всех компонентов
 ```
 cmake --build .
 ```
 
-[ 20%] Built target formatter
-[ 40%] Built target formatter_ex
-[ 60%] Built target solver_library
-[ 80%] Built target hello_world
-[100%] Built target solver
+[ 20%] Built target formatter  
+[ 40%] Built target formatter_ex  
+[ 60%] Built target solver_library  
+[ 80%] Built target hello_world  
+[100%] Built target solver  
 
 Пример для (x^2 + 4x + 3)
 ```
