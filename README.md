@@ -67,9 +67,9 @@ if(NOT TARGET formatter_ex)
                    ${CMAKE_CURRENT_BINARY_DIR}/formatter_ex_lib)
 endif()
 
-if(NOT TARGET solver_lib)
+if(NOT TARGET solver_library)
     add_subdirectory(${CMAKE_SOURCE_DIR}/solver_lib 
-                   ${CMAKE_CURRENT_BINARY_DIR}/solver_lib)
+                   ${CMAKE_CURRENT_BINARY_DIR}/solver_library)
 endif()
 
 add_executable(solver equation.cpp)
