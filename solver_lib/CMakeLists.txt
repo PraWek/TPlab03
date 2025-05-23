@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(formatter_lib)
+project(solver_lib)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(formatter_lib STATIC formatter.cpp formatter.h)
+add_library(solver_lib STATIC solver.cpp solver.h)
 
-target_include_directories(formatter_lib PUBLIC
+target_include_directories(solver_lib PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
